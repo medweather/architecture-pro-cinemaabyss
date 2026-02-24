@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-configuration
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "cinemaabyss.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  kong.yml: |
+    _format_version: "3.0"
+    _transform: true
+    
+    services:
+      - name: monolith
+        url: {{ .Values.config.monolithUrl }}
+        routes:
+          - name: monolith-route
+            paths:
+              - /
+      - name: movies-service
+        enabled: {{ .Values.config.gradualMigration }}
+        url: {{ .Values.config.moviesUrl }}
+        routes:
+          - name: movies-route
+            paths:
+              - /api/movies/
+    
+    upstreams:
+      - name: movies-service
+        targets:
+          - target: {{ .Values.config.moviesHost }}
+            weight: {{ .Values.config.moviesMigrationPercent }}
+            failover: true

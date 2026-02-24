@@ -38,7 +38,7 @@
 
 Доработал [events-service](src/kubernetes/events-service.yaml), [movies-service](src/kubernetes/movies-service.yaml), [monolith](src/kubernetes/monolith.yaml) 
 
-[Proxy-service](src/kubernetes/proxy-service.yaml) сделал иначе. Из-за особенностей настройки `kong.yml`, а именно - невозможности извне прокинуть энвы в этот конфиг, я решил настроить отдельно конфиг-мапу для конга. Образ я также тяну официальный конговский, настраиваю в деплойменте контейнеры с конговскими энвами, монитрую конфиг-мапу и всё работает.
+[Proxy-service](src/kubernetes/proxy-service.yaml) сделал иначе. Из-за особенностей настройки `kong.yml`, а именно - невозможности извне прокинуть энвы в этот конфиг, я решил настроить отдельно конфиг-мапу для конга. Образ я также тяну официальный конговский, настраиваю в деплойменте контейнеры с конговскими энвами, монтирую конфиг-мапу и всё работает.
 
 #### Шаг 3
 
@@ -56,78 +56,16 @@
 
 
 ## Задание 4
-Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 
 
-Для этого:
-1. Перейдите в директорию helm и отредактируйте файл values.yaml
+Скриншот развертывания helm:
 
-```yaml
-# Proxy service configuration
-proxyService:
-  enabled: true
-  image:
-    repository: ghcr.io/db-exp/cinemaabysstest/proxy-service
-    tag: latest
-    pullPolicy: Always
-  replicas: 1
-  resources:
-    limits:
-      cpu: 300m
-      memory: 256Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
-  service:
-    port: 80
-    targetPort: 8000
-    type: ClusterIP
-```
+![helm pods](task_4/helm_pods.png)
 
-- Вместо ghcr.io/db-exp/cinemaabysstest/proxy-service напишите свой путь до образа для всех сервисов
-- для imagePullSecret проставьте свое значение (скопируйте из конфигурации kubernetes)
-  ```yaml
-  imagePullSecrets:
-      dockerconfigjson: ewoJImF1dGhzIjogewoJCSJnaGNyLmlvIjogewoJCQkiYXV0aCI6ICJaR0l0Wlhod09tZG9jRjl2UTJocVZIa3dhMWhKVDIxWmFVZHJOV2hRUW10aFVXbFZSbTVaTjJRMFNYUjRZMWM9IgoJCX0KCX0sCgkiY3JlZHNTdG9yZSI6ICJkZXNrdG9wIiwKCSJjdXJyZW50Q29udGV4dCI6ICJkZXNrdG9wLWxpbnV4IiwKCSJwbHVnaW5zIjogewoJCSIteC1jbGktaGludHMiOiB7CgkJCSJlbmFibGVkIjogInRydWUiCgkJfQoJfSwKCSJmZWF0dXJlcyI6IHsKCQkiaG9va3MiOiAidHJ1ZSIKCX0KfQ==
-  ```
+![helm](task_4/helm.png)
 
-2. В папке ./templates/services заполните шаблоны для proxy-service.yaml и events-service.yaml (опирайтесь на свою kubernetes конфигурацию - смысл helm'а сделать шаблоны для быстрого обновления и установки)
+Скриншот вывода при вызове https://cinemaabyss.example.com/api/movies:
 
-```yaml
-template:
-    metadata:
-      labels:
-        app: proxy-service
-    spec:
-      containers:
-       Тут ваша конфигурация
-```
-
-3. Проверьте установку
-Сначала удалим установку руками
-
-```bash
-kubectl delete all --all -n cinemaabyss
-kubectl delete  namespace cinemaabyss
-```
-Запустите 
-```bash
-helm install cinemaabyss .\src\kubernetes\helm --namespace cinemaabyss --create-namespace
-```
-Если в процессе будет ошибка
-```code
-[2025-04-08 21:43:38,780] ERROR Fatal error during KafkaServer startup. Prepare to shutdown (kafka.server.KafkaServer)
-kafka.common.InconsistentClusterIdException: The Cluster ID OkOjGPrdRimp8nkFohYkCw doesn't match stored clusterId Some(sbkcoiSiQV2h_mQpwy05zQ) in meta.properties. The broker is trying to join the wrong cluster. Configured zookeeper.connect may be wrong.
-```
-
-Проверьте развертывание:
-```bash
-kubectl get pods -n cinemaabyss
-minikube tunnel
-```
-
-Потом вызовите 
-https://cinemaabyss.example.com/api/movies
-и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
+![api movies ap](task_4/api_movies.png)
 
 
 # Задание 5
