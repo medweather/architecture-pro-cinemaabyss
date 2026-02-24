@@ -7,10 +7,13 @@
 
 ## Задание 2
 
-![tests](task_2/img_1.png)
+### Tests
 
+![tests](task_2/tests.png)
 
-![kafka topics](task_2/img.png)
+### Topics
+
+![kafka topics](task_2/topics.png)
 
 ## Задание 3
 
