@@ -1,0 +1,44 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  application:
+    name: events-service
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:29092,localhost:29093,localhost:29094}
+    producer:
+      client-id: ${spring.application.name}
+      batch-size: ${KAFKA_BATCH_SIZE:1KB}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      properties:
+        linger:
+          ms: ${KAFKA_LINGER_MS:10}
+        spring:
+          json:
+            type:
+              mapping: user:ru.medweather.events.model.User,movie:ru.medweather.events.model.Movie,payment:ru.medweather.events.model.Payment
+    consumer:
+      group-id: events-group
+      client-id: ${spring.application.name}
+      max-poll-records: ${KAFKA_MAX_POLL_RECORDS:1000}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        linger:
+          ms: ${KAFKA_LINGER_MS:10}
+        spring:
+          json:
+            type:
+              mapping: user:ru.medweather.events.model.User,movie:ru.medweather.events.model.Movie,payment:ru.medweather.events.model.Payment
+
+kafka-topic:
+  partitions: ${KAFKA_TOPIC_PARTITIONS:3}
+  replicas: ${KAFKA_TOPIC_REPLICAS:1}
+  retention-ms: ${KAFKA_TOPIC_RETENTION_MS:10000}
+  names:
+    user-topic: user-events
+    payment-topic: payment-events
+    movie-topic: movie-events
+
+

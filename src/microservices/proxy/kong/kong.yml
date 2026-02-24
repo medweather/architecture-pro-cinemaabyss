@@ -1,0 +1,30 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: monolith
+    url: ${K_MONOLITH_URL}
+    routes:
+      - name: monolith-route
+        paths:
+          - /
+  - name: movies-service
+    enabled: ${K_GRADUAL_MIGRATION}
+    url: ${K_MOVIES_SERVICE_URL}
+    routes:
+      - name: movies-route
+        paths:
+          - /api/movies/
+  - name: events-service
+    url: ${K_EVENTS_SERVICE_URL}
+    routes:
+      - name: events-route
+        paths:
+          - /api/events/
+
+upstreams:
+  - name: movies-service
+    targets:
+      - target: ${K_MOVIES_SERVICE_HOST}
+        weight: ${K_MOVIES_MIGRATION_PERCENT}
+        failover: true
