@@ -3,20 +3,20 @@ _transform: true
 
 services:
   - name: monolith
-    url: ${K_MONOLITH_URL}
+    url: ${MONOLITH_URL}
     routes:
       - name: monolith-route
         paths:
           - /
   - name: movies-service
-    enabled: ${K_GRADUAL_MIGRATION}
-    url: ${K_MOVIES_SERVICE_URL}
+    enabled: ${GRADUAL_MIGRATION}
+    url: ${MOVIES_SERVICE_URL}
     routes:
       - name: movies-route
         paths:
           - /api/movies/
   - name: events-service
-    url: ${K_EVENTS_SERVICE_URL}
+    url: ${EVENTS_SERVICE_URL}
     routes:
       - name: events-route
         paths:
@@ -25,6 +25,6 @@ services:
 upstreams:
   - name: movies-service
     targets:
-      - target: ${K_MOVIES_SERVICE_HOST}
-        weight: ${K_MOVIES_MIGRATION_PERCENT}
+      - target: ${MOVIES_SERVICE_HOST}
+        weight: ${MOVIES_MIGRATION_PERCENT}
         failover: true
