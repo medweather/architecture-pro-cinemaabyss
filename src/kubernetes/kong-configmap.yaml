@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-configuration
+  namespace: cinemaabyss
+data:
+  kong.yml: |
+    _format_version: "3.0"
+    _transform: true
+    
+    services:
+      - name: monolith
+        url: http://monolith:8080
+        routes:
+          - name: monolith-route
+            paths:
+              - /
+      - name: movies-service
+        enabled: true
+        url: http://movies-service:8081
+        routes:
+          - name: movies-route
+            paths:
+              - /api/movies/
+      - name: events-service
+        url: http://events-service:8082
+        routes:
+          - name: events-route
+            paths:
+              - /api/events/
+    
+    upstreams:
+      - name: movies-service
+        targets:
+          - target: host.docker.internal:8081
+            weight: 10
+            failover: true

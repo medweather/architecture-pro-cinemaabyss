@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy-service
+  namespace: cinemaabyss
+  labels:
+    app: proxy-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxy-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: proxy-service
+    spec:
+      containers:
+        - name: proxy-service
+          image: kong/kong-gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+            - containerPort: 8001
+            - containerPort: 8002
+          env:
+            - name: KONG_DATABASE
+              value: "off"
+            - name: KONG_DECLARATIVE_CONFIG
+              value: "/etc/kong/kong.yml"
+            - name: KONG_ADMIN_LISTEN
+              value: "0.0.0.0:8001"
+            - name: KONG_ADMIN_GUI_URL
+              value: "http://localhost:8002"
+          resources:
+            limits:
+              cpu: "1500m"
+              memory: "1024Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+          volumeMounts:
+            - name: kong-config-volume
+              mountPath: /etc/kong
+      volumes:
+        - name: kong-config-volume
+          configMap:
+            name: kong-configuration
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxy-service
+  namespace: cinemaabyss
+spec:
+  selector:
+    app: proxy-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: server
+    - port: 8001
+      targetPort: 8001
+      name: admin
+    - port: 8002
+      targetPort: 8002
+      name: ui
+  type: ClusterIP
