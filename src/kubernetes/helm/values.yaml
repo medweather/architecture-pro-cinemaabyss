@@ -56,7 +56,7 @@ proxyService:
   image:
     repository: kong/kong-gateway
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   replicas: 1
   resources:
     limits:
@@ -187,12 +187,15 @@ ingress:
 # Application configuration
 config:
   # Strangler Fig configuration
-  gradualMigration: true
-  moviesMigrationPercent: 50
-  monolithUrl: http://monolith:8080
-  moviesUrl: http://movies-service:8081
-  moviesHost: localhost:8081
   proxyService:
+    gradualMigration: true
+    moviesServiceMigrationPercent: 70
+    monolithMovieMigrationPercent: 30
+    monolithUrl: http://monolith:8080
+    eventsUrl: http://events-service:8082
+    moviesHost: movies-service:8081
+    monolithHost: monolith:8080
+    nginxWorkerProcesses: 2
     declarativeConfig: /etc/kong/kong.yml
     adminListen: 0.0.0.0:8001
     guiUrl: http://localhost:8002

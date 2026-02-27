@@ -15,6 +15,16 @@
 
 ![kafka topics](task_2/topics.png)
 
+### Migration to movies-service
+
+Скриншот логов после fortio-запросов `GET /api/movies` (150 штук) с распределением трафика: `70` на movies-service, `30` на monolith:
+
+![migration](task_2/migration_1.png)
+
+Скриншот графика fortio-запросов:
+
+![migration](task_2/migration_2.png)
+
 ## Задание 3
 
 Команда начала переезд в Kubernetes для лучшего масштабирования и повышения надежности. 
@@ -66,6 +76,10 @@
 Скриншот вывода при вызове https://cinemaabyss.example.com/api/movies:
 
 ![api movies ap](task_4/api_movies.png)
+
+Скриншот тестов после развертывания helm чарта:
+
+![tests](task_4/tests.png)
 
 
 # Задание 5

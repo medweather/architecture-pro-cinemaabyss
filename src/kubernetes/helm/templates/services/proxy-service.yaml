@@ -29,8 +29,6 @@ spec:
         imagePullPolicy: {{ .Values.proxyService.image.pullPolicy }}
         ports:
           - containerPort: {{ .Values.proxyService.service.serverPort }}
-          - containerPort: {{ .Values.proxyService.service.adminPort }}
-          - containerPort: {{ .Values.proxyService.service.uiPort }}
         env:
           - name: KONG_DATABASE
             value: "off"
@@ -40,6 +38,8 @@ spec:
             value: "{{ .Values.config.proxyService.adminListen }}"
           - name: KONG_ADMIN_GUI_URL
             value: "{{ .Values.config.proxyService.guiUrl }}"
+          - name: KONG_NGINX_WORKER_PROCESSES
+            value: "{{ .Values.config.proxyService.nginxWorkerProcesses }}"
         resources:
           limits:
             cpu: "{{ .Values.proxyService.resources.limits.cpu }}"

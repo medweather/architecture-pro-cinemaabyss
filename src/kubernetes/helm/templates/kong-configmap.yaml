@@ -9,26 +9,28 @@ metadata:
 data:
   kong.yml: |
     _format_version: "3.0"
-    _transform: true
-    
+
     services:
-      - name: monolith
-        url: {{ .Values.config.monolithUrl }}
-        routes:
-          - name: monolith-route
-            paths:
-              - /
-      - name: movies-service
-        enabled: {{ .Values.config.gradualMigration }}
-        url: {{ .Values.config.moviesUrl }}
-        routes:
-          - name: movies-route
-            paths:
-              - /api/movies/
-    
+    - name: monolith
+      url: {{ .Values.config.proxyService.monolithUrl }}
+      routes:
+      - name: monolith-route
+        paths:
+          - "/"
+
+    - name: movies-service
+      host: movies-upstream
+      enabled: {{ .Values.config.proxyService.gradualMigration }}
+      routes:
+      - name: movies-route
+        strip_path: false
+        paths:
+          - "/api/movies"
+
     upstreams:
-      - name: movies-service
+      - name: movies-upstream
         targets:
-          - target: {{ .Values.config.moviesHost }}
-            weight: {{ .Values.config.moviesMigrationPercent }}
-            failover: true
+        - target: {{ .Values.config.proxyService.moviesHost }}
+          weight: {{ .Values.config.proxyService.moviesServiceMigrationPercent }}
+        - target: {{ .Values.config.proxyService.monolithHost }}
+          weight: {{ .Values.config.proxyService.monolithMovieMigrationPercent }}
