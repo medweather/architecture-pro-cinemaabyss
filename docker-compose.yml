@@ -115,8 +115,8 @@ services:
         - EVENTS_SERVICE_URL=http://events-service:8082
         - GRADUAL_MIGRATION=true
         - MOVIES_MIGRATION_PERCENT=70
-        - MOVIES_SERVICE_HOST=host.docker.internal:8081
-        - MONOLITH_HOST=host.docker.internal:8080
+        - MOVIES_SERVICE_HOST=localhost:8081
+        - MONOLITH_HOST=localhost:8080
     container_name: cinemaabyss-proxy-service
     restart: unless-stopped
     depends_on:
