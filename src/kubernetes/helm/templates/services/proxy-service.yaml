@@ -25,7 +25,35 @@ spec:
     spec:
       containers:
       - name: proxy-service
-        ..... тут
+        image: {{ .Values.proxyService.image.repository }}:{{ .Values.proxyService.image.tag }}
+        imagePullPolicy: {{ .Values.proxyService.image.pullPolicy }}
+        ports:
+          - containerPort: {{ .Values.proxyService.service.serverPort }}
+        env:
+          - name: KONG_DATABASE
+            value: "off"
+          - name: KONG_DECLARATIVE_CONFIG
+            value: "{{ .Values.config.proxyService.declarativeConfig }}"
+          - name: KONG_ADMIN_LISTEN
+            value: "{{ .Values.config.proxyService.adminListen }}"
+          - name: KONG_ADMIN_GUI_URL
+            value: "{{ .Values.config.proxyService.guiUrl }}"
+          - name: KONG_NGINX_WORKER_PROCESSES
+            value: "{{ .Values.config.proxyService.nginxWorkerProcesses }}"
+        resources:
+          limits:
+            cpu: "{{ .Values.proxyService.resources.limits.cpu }}"
+            memory: "{{ .Values.proxyService.resources.limits.memory }}"
+          requests:
+            cpu: "{{ .Values.proxyService.resources.requests.cpu }}"
+            memory: "{{ .Values.proxyService.resources.requests.memory }}"
+        volumeMounts:
+          - name: kong-config-volume
+            mountPath: /etc/kong
+      volumes:
+      - name: kong-config-volume
+        configMap:
+          name: kong-configuration
 ---
 apiVersion: v1
 kind: Service
@@ -38,5 +66,16 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   selector:
-    ... и тут
+    app: proxy-service
+  ports:
+    - port: {{ .Values.proxyService.service.serverPort }}
+      targetPort: {{ .Values.proxyService.service.serverPort }}
+      name: server
+    - port: {{ .Values.proxyService.service.adminPort }}
+      targetPort: {{ .Values.proxyService.service.adminPort }}
+      name: admin
+    - port: {{ .Values.proxyService.service.uiPort }}
+      targetPort: {{ .Values.proxyService.service.uiPort }}
+      name: ui
+  type: {{ .Values.proxyService.service.type }}
 {{- end }}
